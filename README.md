@@ -10,4 +10,4 @@ Scriptable을 이용한 EPL 순위 · 일정 위젯 만들기
 * 일정 (Small Size)
 * 순위, 일정 (Medium Size)
 </br>
-![B4F702A0-4915-4EFD-823D-07D58217A733](https://user-images.githubusercontent.com/76520025/130637012-de130199-4a9a-49a5-9314-7c99a1ad3532.png)
+<p align="center"><img src="https://user-images.githubusercontent.com/76520025/130637012-de130199-4a9a-49a5-9314-7c99a1ad3532.png" width="45%" height="45%"></p>
