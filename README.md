@@ -7,5 +7,4 @@
 <br><br><br>
 
 > ### 사진 
-</br>
 <p align="center"><img src="https://user-images.githubusercontent.com/76520025/130637012-de130199-4a9a-49a5-9314-7c99a1ad3532.png" width="45%" height="45%"></p>
