@@ -5,7 +5,7 @@ const s = "39301"
 // 브랜트포드:671 아스날:2 맨유:21 리즈:571 번리:275 브라이튼:670 첼시:9 크팰:567 에버턴:197 사우샘프턴:615
 // 레스터:572 울버햄튼:203 왓포드:580 아스톤빌라:199 노리치:575 리버풀:18 뉴캐슬:207 웨스트햄:198 토트넘:202 맨시티:209
 // MyTeam 설정
-const myTeamId = "202" 
+const myTeamId = "18" 
 let myTeamColor = "#FFFF00"
 let txColor = "#410648"
 let logoColor = "#410648"
@@ -131,35 +131,43 @@ let closeMatchDay = 32
 let closeMatchHours = 0
 let closeMatchMinutes = 0
 let closeMatchDayofTheWeek = 0
+let matchPeriod = ""
+let homeScore = 0
+let awayScore = 0
 let isFindMatchday = 0
 
 for(const matchday of matchDayJson.matchdays){
-  const matchUrl=`https://api.onefootball.com/scores-mixer/v1/en/cn/matchdays/${matchday.id}`
-  const req2 = new Request(matchUrl)
-  const matchJson = await req2.loadJSON()
-  
-  for(const item of matchJson.kickoffs){
-    for(const match of item.groups[0].matches){
-      if (match.period != "FullTime" && (match.team_home.id == myTeamId || match.team_away.id == myTeamId)){
-        const date = new Date(item.kickoff)
-        closeMatchHometeamName = match.team_home.name
-        closeMatchAwayteamName = match.team_away.name
-        closeMatchHometeamId = match.team_home.id
-        closeMatchAwayteamId = match.team_away.id
-        closeMatchMonth = date.getMonth()
-        closeMatchDay = date.getDate()
-        closeMatchHours = date.getHours()
-        closeMatchMinutes = date.getMinutes()
-        closeMatchDayofTheWeek = date.getDay()
-        isFindMatchday = 1
-        break                
-      }
+    if(matchday.isCurrentMatchday == true){
+        const matchUrl=`https://api.onefootball.com/scores-mixer/v1/en/cn/matchdays/${matchday.id}`
+        const req2 = new Request(matchUrl)
+        const matchJson = await req2.loadJSON()
+        
+        for(const item of matchJson.kickoffs){
+            for(const match of item.groups[0].matches){
+                if (match.team_home.id == myTeamId || match.team_away.id == myTeamId){
+                    const date = new Date(item.kickoff)
+                    closeMatchHometeamName = match.team_home.name
+                    closeMatchAwayteamName = match.team_away.name
+                    closeMatchHometeamId = match.team_home.id
+                    closeMatchAwayteamId = match.team_away.id
+                    matchPeriod = match.period
+                    homeScore = match.score_home
+                    awayScore = match.score_away
+                    closeMatchMonth = date.getMonth()
+                    closeMatchDay = date.getDate()
+                    closeMatchHours = date.getHours()
+                    closeMatchMinutes = date.getMinutes()
+                    closeMatchDayofTheWeek = date.getDay()
+                    isFindMatchday = 1
+                    break                
+                }
+            }
+            if(isFindMatchday == 1)
+                break
+        }
+        if(isFindMatchday == 1)
+            break     
     }
-    if(isFindMatchday == 1)
-      break
-  }
-  if(isFindMatchday == 1)
-      break     
 }  
 const matchstadium = getMatchStadium(closeMatchHometeamName)
 
@@ -189,21 +197,26 @@ matchTeamTitleImage.size = new Size(155, 36)
 matchTeamTitleImage.layoutHorizontally()
 
 const homeImageStack = matchTeamTitleImage.addStack()         // Hometeam Image
-homeImageStack.size = new Size(70, 36)
+homeImageStack.size = new Size(60, 36)
 homeImageStack.setPadding(6, 0, 0, 0)               
 const homeTeamImage = await loadImage(`https://images.onefootball.com/icons/teams/56/${closeMatchHometeamId}.png`)
 const homeImage = homeImageStack.addImage(homeTeamImage)      
 homeImage.imageSize = new Size(30, 30)
 
 const vsStack = matchTeamTitleImage.addStack()                // "VS"
-vsStack.size = new Size(15, 36)
-vsStack.setPadding(25, 0, 0, 0)               
-vs = vsStack.addText("VS")
-vs.font = Font.boldMonospacedSystemFont(10)
+vsStack.size = new Size(32, 36)
+vsStack.setPadding(20, 0, 0, 0)
+if(matchPeriod === "FullTime")
+    vs = vsStack.addText(`${homeScore} : ${awayScore}`) 
+else if(matchPeriod === "Postponed")             
+    vs = vsStack.addText("x")
+else
+    vs = vsStack.addText("vs")
+vs.font = Font.boldMonospacedSystemFont(14)
 vs.textColor = new Color(txColor, 1)
 
 const awayImageStack = matchTeamTitleImage.addStack()         // Away Image
-awayImageStack.size = new Size(70, 36)
+awayImageStack.size = new Size(60, 36)
 awayImageStack.setPadding(6, 0, 0, 0)               
 const awayTeamImage = await loadImage(`https://images.onefootball.com/icons/teams/56/${closeMatchAwayteamId}.png`)
 const awayImage = awayImageStack.addImage(awayTeamImage)      
@@ -213,22 +226,22 @@ const matchTeamTitleText = scheduleStack.addStack()
 matchTeamTitleText.size = new Size(155, 36)
 
 const hometeamNameStack = matchTeamTitleText.addStack()       // Hometeam Name
-hometeamNameStack.size = new Size(70, 36)
+hometeamNameStack.size = new Size(60, 36)
 hometeamNameStack.setPadding(5, 0, 0, 0)               
 closeMatchHometeamName = enToKr(closeMatchHometeamName)               
 hometeamName = hometeamNameStack.addText(closeMatchHometeamName)
-hometeamName.font = Font.boldMonospacedSystemFont(14)
+hometeamName.font = Font.boldMonospacedSystemFont(12)
 hometeamName.textColor = new Color(txColor, 1)
 
 const dummy = matchTeamTitleText.addStack()               
-dummy.size = new Size(15, 36)
+dummy.size = new Size(32, 36)
 
 const awayteamNameStack = matchTeamTitleText.addStack()       // Away Name
-awayteamNameStack.size = new Size(70, 36)
+awayteamNameStack.size = new Size(60, 36)
 awayteamNameStack.setPadding(5, 0, 0, 0)               
 closeMatchAwayteamName = enToKr(closeMatchAwayteamName)               
 awayteamName = awayteamNameStack.addText(closeMatchAwayteamName)
-awayteamName.font = Font.boldMonospacedSystemFont(14)
+awayteamName.font = Font.boldMonospacedSystemFont(12)
 awayteamName.textColor = new Color(txColor, 1)
 
 // MatchDay 구장정보 출력
